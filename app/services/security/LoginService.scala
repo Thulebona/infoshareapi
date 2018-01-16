@@ -11,6 +11,7 @@ import scala.concurrent.Future
   * Created by hashcode on 6/24/17.
   */
 trait LoginService {
+  def changePassword(entity: Credential, token: String): Future[Option[Boolean]]
 
   def getLogins(email: String): Future[Seq[Login]]
 

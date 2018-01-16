@@ -3,6 +3,7 @@ package conf.connections
 import java.net.InetAddress
 
 import com.datastax.driver.core.SocketOptions
+import com.datastax.driver.core.policies.{DCAwareRoundRobinPolicy, TokenAwarePolicy}
 import com.outworkers.phantom.connectors.{ContactPoint, ContactPoints}
 import com.typesafe.config.ConfigFactory
 
@@ -13,10 +14,14 @@ import scala.collection.JavaConverters._
   */
 object Config {
   val config = ConfigFactory.load()
-  def  PORT = 9042
-  def  connectionTimeoutMillis = 700000
+
+  def PORT = 9042
+
+  def connectionTimeoutMillis = 700000
+
   // Default is 5000
-  def  readTimeoutMillis = 1500000
+  def readTimeoutMillis = 1500000
+
   // Default is 12000
   val hosts: Seq[String] = config.getStringList("cassandra.host").asScala.toList
   val dataCenter = config.getString("cassandra.dataCenter")
@@ -40,11 +45,9 @@ object DataConnection {
         .withSocketOptions(new SocketOptions()
           .setReadTimeoutMillis(Config.readTimeoutMillis)
           .setConnectTimeoutMillis(Config.connectionTimeoutMillis))
-      //              .withLoadBalancingPolicy(new TokenAwarePolicy(
-      //                new DCAwareRoundRobinPolicy.Builder()
-      //                  .withUsedHostsPerRemoteDc(2)
-      //                  .withLocalDc(Config.dataCenter).build()
-      //              ))
+          .withLoadBalancingPolicy(new TokenAwarePolicy(new DCAwareRoundRobinPolicy.Builder()
+            .withUsedHostsPerRemoteDc(1)
+            .withLocalDc(Config.dataCenter).build()))
     ).noHeartbeat().keySpace(Config.keySpace)
 
 

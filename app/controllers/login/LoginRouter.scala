@@ -15,6 +15,8 @@ class LoginRouter @Inject() (loginController:LoginController) extends SimpleRout
     //Login
     case POST(p"/authenticate/") =>
       loginController.authenticate
+    case POST(p"/change/") =>
+      loginController.changePassword
     case GET(p"/accounts/$email") =>
       loginController.login(email)
   }
